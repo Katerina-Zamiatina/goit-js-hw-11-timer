@@ -1,27 +1,26 @@
-const refs = {
-  days: document.querySelector('span[data-value="days"]'),
-  hours: document.querySelector('span[data-value="hours"]'),
-  mins: document.querySelector('span[data-value="mins"]'),
-  secs: document.querySelector('span[data-value="secs"]'),
-};
-
 class CountdownTimer {
   constructor({ selector, targetDate }) {
     this.selector = selector;
     this.targetDate = targetDate;
-
-    this.init();
+    this.refs = {
+      days: document.querySelector('span[data-value="days"]'),
+      hours: document.querySelector('span[data-value="hours"]'),
+      mins: document.querySelector('span[data-value="mins"]'),
+      secs: document.querySelector('span[data-value="secs"]'),
+    };
+    this.intervalId = null;
   }
-  init() {
-    const time = this.targetDate;
-  }
 
-  start(targetDate) {
-    setInterval(() => {
-      const currentTime = Date.now();
-      const deltaTime = targetDate - currentTime;
-      const time = this.getTimeComponents(deltaTime);
-    },1000);
+  start() {
+    const startDate = this.targetDate.getTime();
+    this.intervalId = setInterval(() => {
+      const currentDate = Date.now();
+      const deltaDate = startDate - currentDate;
+      if (deltaDate <= 0) {
+        clearInterval(this.intervalId);
+      }
+      this.getTimeComponents(deltaDate);
+    }, 1000);
   }
 
   getTimeComponents(time) {
@@ -31,19 +30,24 @@ class CountdownTimer {
     );
     const mins = this.pad(Math.floor((time % (1000 * 60 * 60)) / (1000 * 60)));
     const secs = this.pad(Math.floor((time % (1000 * 60)) / 1000));
-    return { days, hours, mins, secs };
+    this.updateTimer(days, hours, mins, secs);
   }
 
   pad(value) {
     return String(value).padStart(2, '0');
   }
+
+  updateTimer(days, hours, mins, secs) {
+    this.refs.days.textContent = `${days}`;
+    this.refs.hours.textContent = `${hours}`;
+    this.refs.mins.textContent = `${mins}`;
+    this.refs.secs.textContent = `${secs}`;
+  }
 }
 
 const timer = new CountdownTimer({
   selector: '#timer-1',
-  targetDate: new Date('Jul 17, 2019'),
+  targetDate: new Date('Jul 17, 2021'),
 });
 
-// window.addEventListener('click', timer.start.bind(timer))
-
-// https://github.com/luxplanjay/js-22/blob/11-1-%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D1%81%D1%82%D1%8C/src/js/06-timer.js
+timer.start();
